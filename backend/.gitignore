@@ -1,0 +1,27 @@
+# Ignore environment variables file
+.env
+
+# Ignore Python virtual environment
+venv/
+__pycache__/
+
+# Ignore Docker-related files
+.dockerenv
+.DS_Store
+
+# Ignore build artifacts
+*.log
+*.sqlite3
+*.pyc
+
+# Ignore media and static files if they are generated dynamically
+media/
+static/
+
+# Ignore temporary files
+*.tmp
+*.swp
+
+# Ignore IDE-specific files (if applicable)
+.vscode/
+.idea/
