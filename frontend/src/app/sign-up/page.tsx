@@ -7,20 +7,21 @@ export default function Signup() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await fetch("http://127.0.0.1:8000/user/signup/", {
+    const res = await fetch("http://127.0.0.1:8000/user/sign-up/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, email, password }),
+      body: JSON.stringify({ username, email, password, confirm_password: confirmPassword }),
     });
     const data = await res.json();
     if (res.ok) {
       localStorage.setItem("token", data.token);
-      router.push("/dashboard");
+      router.push("/sign-in");
     } else {
       setError(data.error || "Signup failed");
     }
@@ -56,6 +57,15 @@ export default function Signup() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className="w-full p-2 bg-dracula-comment text-dracula-fg rounded"
+            />
+          </div>
+          <div>
+            <label className="block">Confirm Password</label>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               className="w-full p-2 bg-dracula-comment text-dracula-fg rounded"
             />
           </div>

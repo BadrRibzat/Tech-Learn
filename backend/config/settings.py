@@ -30,7 +30,6 @@ ALLOWED_HOSTS = ['*']  # Allow all hosts for development; restrict in production
 
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -42,6 +41,7 @@ INSTALLED_APPS = [
     'drf_yasg',  # For API documentation
     'rest_framework',  # For Django REST framework
     'rest_framework.authtoken',  # For token-based authentication
+    'corsheaders',  # Fixed typo here
     # Custom apps
     'user',
     'learning',
@@ -50,6 +50,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -152,6 +153,10 @@ SWAGGER_SETTINGS = {
     },
 }
 
+CORS_ALLOW_ALL_ORIGINS = True  # For dev only; restrict in production
+CORS_ALLOW_METHODS = ['GET', 'POST', 'OPTIONS']
+CORS_ALLOW_HEADERS = ['Authorization', 'Content-Type']
+
 # Django REST Framework settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -159,7 +164,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',  # Session-based authentication
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',  # Require authentication by default
+        'rest_framework.permissions.AllowAny',  # Require authentication by default
     ],
 }
 

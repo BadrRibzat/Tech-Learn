@@ -9,9 +9,19 @@ export default function Header() {
     setIsLoggedIn(!!token);
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    setIsLoggedIn(false);
+  const handleLogout = async () => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      await fetch("http://127.0.0.1:8000/user/sign-out/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Token ${token}`,
+        },
+      });
+      localStorage.removeItem("token");
+      setIsLoggedIn(false);
+    }
   };
 
   return (
@@ -26,13 +36,13 @@ export default function Header() {
           <li><a href="/terminal" className="hover:text-dracula-purple">Terminal</a></li>
           {!isLoggedIn ? (
             <>
-              <li><a href="/signup" className="hover:text-dracula-purple">Sign Up</a></li>
-              <li><a href="/login" className="hover:text-dracula-purple">Login</a></li>
+              <li><a href="/sign-up" className="hover:text-dracula-purple">Sign Up</a></li>
+              <li><a href="/sign-in" className="hover:text-dracula-purple">Sign In</a></li>
             </>
           ) : (
             <li>
               <button onClick={handleLogout} className="hover:text-dracula-purple">
-                Logout
+                Sign Out
               </button>
             </li>
           )}

@@ -9,14 +9,14 @@ export default function Dashboard() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
-      router.push("/login");
+      router.push("/sign-in");  // Updated to sign-in
     }
   }, [router]);
 
   const handleLogout = async () => {
     const token = localStorage.getItem("token");
     if (token) {
-      await fetch("http://127.0.0.1:8000/user/logout/", {
+      await fetch("http://127.0.0.1:8000/user/sign-out/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -24,7 +24,7 @@ export default function Dashboard() {
         },
       });
       localStorage.removeItem("token");
-      router.push("/login");
+      router.push("/sign-in");  // Updated to sign-in
     }
   };
 
@@ -39,7 +39,7 @@ export default function Dashboard() {
             Go to Terminal
           </a>
           <button onClick={handleLogout} className="bg-dracula-purple text-dracula-bg px-4 py-2 rounded hover:bg-dracula-comment">
-            Logout
+            Sign Out
           </button>
         </div>
       </div>
