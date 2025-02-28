@@ -1,5 +1,6 @@
 from pymongo import MongoClient
 from django.conf import settings
+from django.contrib.auth.hashers import make_password, check_password
 import uuid
 
 client = MongoClient(settings.MONGODB_URI)
@@ -11,8 +12,8 @@ class User:
     def __init__(self, username, email, password, token=None, is_active=True, is_admin=False):
         self.username = username
         self.email = email
-        self.password = password  # Store hashed in practice
-        self.token = token or str(uuid.uuid4())  # Generate unique token if none provided
+        self.password = make_password(password)  # Hash password on init
+        self.token = token or str(uuid.uuid4())
         self.is_active = is_active
         self.is_admin = is_admin
 
@@ -67,4 +68,7 @@ class User:
                 is_active=user_data['is_active'],
                 is_admin=user_data['is_admin']
             )
-            return None
+        return None
+
+    def check_password(self, raw_password):
+        return check_password(raw_password, self.password)

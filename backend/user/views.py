@@ -21,7 +21,7 @@ class SigninView(APIView):
         email = request.data.get('email')
         password = request.data.get('password')
         user = User.find_by_email(email)
-        if user and user.password == password:  # Replace with password hashing check
+        if user and user.check_password(password):  # Use check_password
             return Response({'token': user.token}, status=status.HTTP_200_OK)
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -32,7 +32,6 @@ class SignoutView(APIView):
             token_key = auth_header.split(' ')[1]
             user = User.find_by_token(token_key)
             if user:
-                # Optionally invalidate token by regenerating it or removing it
                 return Response({'message': 'Signed out successfully'}, status=status.HTTP_200_OK)
             return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
         return Response({'error': 'Authentication token required'}, status=status.HTTP_401_UNAUTHORIZED)
