@@ -1,71 +1,40 @@
 FROM ubuntu:20.04
 
-# Avoid prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install necessary packages and tools
+# Install essentials + SSH server + learning tools
 RUN apt-get update && apt-get install -y \
-    build-essential \
+    openssh-server \
+    sudo \
     python3 \
     python3-pip \
-    python3-dev \
-    nodejs \
-    npm \
-    curl \
-    wget \
-    ssh \
-    git \
     nano \
     vim \
-    redis-server \
-    sqlite3 \
-    postgresql \
-    postgresql-contrib \
-    mongodb \
-    g++ \
-    cmake \
-    libboost-all-dev \
-    # Additional C++ frameworks/libraries
-    libgtest-dev \
-    libfmt-dev \
-    # Add more Python libraries
-    python3-numpy \
-    python3-pandas \
-    python3-matplotlib \
-    # Add more JavaScript tools
-    && rm -rf /var/lib/apt/lists/*
+    git \
+    curl \
+    nodejs \
+    npm \
+    && rm -rf /var/lib/apt/lists/* \
+    && pip3 install django requests
 
-# Install TypeScript and other JS tools
-RUN npm install -g typescript webpack webpack-cli vue-cli react-scripts @angular/cli
+# Set up SSH with host keys
+RUN mkdir -p /var/run/sshd && \
+    ssh-keygen -A && \
+    echo "PermitRootLogin no" >> /etc/ssh/sshd_config && \
+    echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config && \
+    chmod 0755 /var/run/sshd
 
-# Install popular Python packages
-RUN pip3 install virtualenv django flask requests fastapi beautifulsoup4
-RUN pip3 install scikit-learn
-RUN pip3 install tensorflow-cpu
+# Create student user with sudo privileges
+RUN useradd -m -s /bin/bash student && \
+    echo "student:studentpass" | chpasswd && \
+    echo "student ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/student && \
+    chmod 0440 /etc/sudoers.d/student
 
-# Set up PostgreSQL
-RUN service postgresql start && \
-    su - postgres -c "createuser -s student" && \
-    su - postgres -c "createdb studentdb -O student"
-
-# Configure Redis
-RUN mkdir -p /var/run/redis && \
-    chown redis:redis /var/run/redis
-
-# Create a user for running the terminal
-RUN useradd -ms /bin/bash student
-
-# Set up the workspace
 WORKDIR /home/student
-RUN mkdir -p /home/student/projects && \
-    chown -R student:student /home/student
+RUN mkdir -p /home/student/projects && chown -R student:student /home/student && \
+    echo "PS1='tech-learn@\\u\\$ '" >> /home/student/.bashrc && \
+    echo "Welcome to Tech-Learn Terminal!\nPre-installed: python3, pip3, nodejs, npm, git, nano, vim, django, requests\nTry 'sudo apt install <package>' or 'python3 --version'.\n" > /home/student/welcome.txt
 
-# Add startup script to ensure services are running
-COPY start-services.sh /start-services.sh
-RUN chmod +x /start-services.sh
+EXPOSE 22
 
-# Switch to the student user
-USER student
-
-# Keep container running
-ENTRYPOINT ["/start-services.sh"]
+CMD ["/usr/sbin/sshd", "-D"]

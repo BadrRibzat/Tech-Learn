@@ -169,12 +169,13 @@ ASGI_APPLICATION = 'config.asgi.application'
 
 # Redis configuration for Channels and caching
 REDIS_HOST = config('REDIS_HOST', default='127.0.0.1')
+CSRF_TRUSTED_ORIGINS = ['http://localhost:3000', 'http://127.0.0.1:3000']
 
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [(REDIS_HOST, 6379)],  # Use default Redis port (6379) and no password
+            'hosts': [(REDIS_HOST, 6379)],
         },
     },
 }
@@ -183,7 +184,7 @@ CHANNEL_LAYERS = {
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': f'redis://{REDIS_HOST}:6379/1',  # Use default Redis port (6379) and no password
+        'LOCATION': f'redis://{REDIS_HOST}:6379/1',
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         }
