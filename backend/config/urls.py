@@ -18,7 +18,7 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('admin/', admin.site.urls),
     # Include app URLs
-#    path('user/', include('user.urls')),
+    path('user/', include('user.urls')),
 #    path('learning/', include('learning.urls')),
     path('terminal/', include('terminal.urls')),
 #    path('chatbot/', include('chatbot.urls')),
