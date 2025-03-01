@@ -12,7 +12,7 @@ class User:
     def __init__(self, username, email, password, token=None, is_active=True, is_admin=False):
         self.username = username
         self.email = email
-        self.password = make_password(password)  # Hash password on init
+        self.password = password  # Store plain here, hash in save()
         self.token = token or str(uuid.uuid4())
         self.is_active = is_active
         self.is_admin = is_admin
@@ -21,7 +21,7 @@ class User:
         data = {
             'username': self.username,
             'email': self.email,
-            'password': self.password,
+            'password': make_password(self.password),  # Hash on save
             'token': self.token,
             'is_active': self.is_active,
             'is_admin': self.is_admin
@@ -35,7 +35,7 @@ class User:
             return User(
                 username=user_data['username'],
                 email=user_data['email'],
-                password=user_data['password'],
+                password=user_data['password'],  # Already hashed
                 token=user_data.get('token'),
                 is_active=user_data['is_active'],
                 is_admin=user_data['is_admin']
@@ -49,7 +49,7 @@ class User:
             return User(
                 username=user_data['username'],
                 email=user_data['email'],
-                password=user_data['password'],
+                password=user_data['password'],  # Already hashed
                 token=user_data.get('token'),
                 is_active=user_data['is_active'],
                 is_admin=user_data['is_admin']

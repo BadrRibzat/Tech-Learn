@@ -2,12 +2,15 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Header from "../components/Header";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
 
 export default function Signup() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
 
@@ -30,47 +33,72 @@ export default function Signup() {
   return (
     <>
       <Header />
-      <div className="max-w-4xl mx-auto p-4">
-        <h2 className="text-3xl font-bold mb-4">Sign Up</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="max-w-md mx-auto p-6 bg-dracula-comment rounded-lg shadow-lg mt-8">
+        <h2 className="text-3xl font-bold mb-6 text-dracula-fg text-center">Sign Up</h2>
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block">Username</label>
+            <label className="block text-sm font-medium text-dracula-fg mb-1">Username</label>
             <input
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full p-2 bg-dracula-comment text-dracula-fg rounded"
+              className="w-full p-3 bg-dracula-bg text-dracula-fg rounded-md border border-dracula-purple focus:outline-none focus:ring-2 focus:ring-dracula-purple"
+              placeholder="Enter your username"
             />
           </div>
           <div>
-            <label className="block">Email</label>
+            <label className="block text-sm font-medium text-dracula-fg mb-1">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-2 bg-dracula-comment text-dracula-fg rounded"
+              className="w-full p-3 bg-dracula-bg text-dracula-fg rounded-md border border-dracula-purple focus:outline-none focus:ring-2 focus:ring-dracula-purple"
+              placeholder="Enter your email"
             />
           </div>
           <div>
-            <label className="block">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-2 bg-dracula-comment text-dracula-fg rounded"
-            />
+            <label className="block text-sm font-medium text-dracula-fg mb-1">Password</label>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full p-3 bg-dracula-bg text-dracula-fg rounded-md border border-dracula-purple focus:outline-none focus:ring-2 focus:ring-dracula-purple"
+                placeholder="Enter your password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-dracula-fg hover:text-dracula-purple"
+              >
+                {showPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+              </button>
+            </div>
           </div>
           <div>
-            <label className="block">Confirm Password</label>
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full p-2 bg-dracula-comment text-dracula-fg rounded"
-            />
+            <label className="block text-sm font-medium text-dracula-fg mb-1">Confirm Password</label>
+            <div className="relative">
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full p-3 bg-dracula-bg text-dracula-fg rounded-md border border-dracula-purple focus:outline-none focus:ring-2 focus:ring-dracula-purple"
+                placeholder="Confirm your password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-dracula-fg hover:text-dracula-purple"
+              >
+                {showConfirmPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+              </button>
+            </div>
           </div>
-          {error && <p className="text-red-500">{error}</p>}
-          <button type="submit" className="bg-dracula-purple text-dracula-bg px-4 py-2 rounded hover:bg-dracula-comment">
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+          <button
+            type="submit"
+            className="w-full bg-dracula-purple text-dracula-bg px-4 py-3 rounded-md hover:bg-dracula-comment transition-colors duration-200"
+          >
             Sign Up
           </button>
         </form>
