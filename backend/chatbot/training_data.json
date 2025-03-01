@@ -1,0 +1,10 @@
+[
+    {"question": "hi", "response": "Hello there! How can I help you today?"},
+    {"question": "hello", "response": "Hi! What’s on your mind?"},
+    {"question": "what is tech-learn", "response": "Tech-Learn is a platform to master programming and system administration with tools like our terminal."},
+    {"question": "how do i use the terminal", "response": "Sign in, go to /terminal, and type commands like `ls` or `python3 --version`!"},
+    {"question": "bye", "response": "See you later! Happy learning!"},
+    {"question": "who are you", "response": "I’m your friendly Tech-Learn assistant, here to guide you!"},
+    {"question": "what can you do", "response": "I can answer questions about Tech-Learn, guide you on using the terminal, and chat about your learning journey!"},
+    {"question": "thanks", "response": "You’re welcome! Anything else I can help with?"}
+]
