@@ -8,10 +8,10 @@ export default function Home() {
         <h2 className="text-3xl font-bold mb-4">Welcome to Tech-Learn</h2>
         <p className="mb-4">
           Tech-Learn is your platform to master programming and system administration through hands-on practice.
-          Explore our interactive terminal, dive into tutorials, and track your progress.
+          Sign in to access your personalized learning dashboard!
         </p>
-        <a href="/terminal" className="bg-dracula-purple text-dracula-bg px-4 py-2 rounded hover:bg-dracula-comment">
-          Try the Terminal
+        <a href="/sign-in" className="bg-dracula-purple text-dracula-bg px-4 py-2 rounded hover:bg-dracula-comment">
+          Sign In
         </a>
       </div>
     </>

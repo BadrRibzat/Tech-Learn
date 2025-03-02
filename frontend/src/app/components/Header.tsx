@@ -33,18 +33,20 @@ export default function Header() {
           <li><a href="/about" className="hover:text-dracula-purple">About</a></li>
           <li><a href="/contact" className="hover:text-dracula-purple">Contact</a></li>
           <li><a href="/payments" className="hover:text-dracula-purple">Payments</a></li>
-          <li><a href="/terminal" className="hover:text-dracula-purple">Terminal</a></li>
           {!isLoggedIn ? (
             <>
               <li><a href="/sign-up" className="hover:text-dracula-purple">Sign Up</a></li>
               <li><a href="/sign-in" className="hover:text-dracula-purple">Sign In</a></li>
             </>
           ) : (
-            <li>
-              <button onClick={handleLogout} className="hover:text-dracula-purple">
-                Sign Out
-              </button>
-            </li>
+            <>
+              <li><a href="/dashboard" className="hover:text-dracula-purple">Dashboard</a></li>
+              <li>
+                <button onClick={handleLogout} className="hover:text-dracula-purple">
+                  Sign Out
+                </button>
+              </li>
+            </>
           )}
         </ul>
       </nav>
