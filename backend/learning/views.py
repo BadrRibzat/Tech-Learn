@@ -8,12 +8,15 @@ import subprocess
 class LessonListView(APIView):
     def get(self, request):
         token = request.headers.get('Authorization', '').replace('Token ', '')
-        user = User.find_by_token(token)
+        user = User.find_by_token(token)  # MongoDB custom token check
         if not user:
             return Response({'error': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
-        tier = 'basic' if not user.is_premium else None  # Premium logic TBD
-        lessons = Lesson.get_all(section='frontend', tier=tier)  # Start with frontend
-        return Response([{'id': str(l._id), 'title': l.title, 'content': l.content, 'example_file': l.example_file, 'task_description': l.task_description} for l in lessons])
+        tier = 'basic' if not getattr(user, 'is_premium', False) else None  # Handle premium later
+        lessons = Lesson.get_all(tier=tier)  # Fetch all sections for now
+        return Response([{
+            'id': str(l._id), 'title': l.title, 'content': l.content,
+            'example_file': l.example_file, 'task_description': l.task_description
+        } for l in lessons])
 
 class ProgressView(APIView):
     def get(self, request):
@@ -34,10 +37,10 @@ class ProgressView(APIView):
         if not lesson:
             return Response({'error': 'Lesson not found'}, status=status.HTTP_404_NOT_FOUND)
         
-        # Execute in user's Docker terminal (pseudo-code, needs Docker setup)
-        file_path = lesson.task_description.split(' ')[1]  # e.g., "/portfolio/index.html"
+        file_path = lesson.task_description.split(' ')[1]  # e.g., "/frontend/html_task.html"
         try:
-            output = subprocess.check_output(['docker', 'exec', f'user-{user.token}-terminal', 'cat', file_path], text=True)
+            # Temporary: Use shared container (ubuntu-server) until per-user setup
+            output = subprocess.check_output(['docker', 'exec', 'ubuntu-server', 'cat', file_path], text=True)
             completed = output.strip().startswith(lesson.expected_output)
             progress = UserProgress(user.token, lesson_id, completed, [file_path], output)
             progress.save()

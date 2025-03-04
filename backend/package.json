@@ -1,0 +1,18 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "This is the backend for the Tech-Learn project, a learning platform built with Django, Channels, and a Dockerized Ubuntu server. It provides a real Ubuntu terminal accessible via WebSocket for users to practice programming and system administration tasks.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "ssh2": "^1.16.0",
+    "wetty": "^2.7.0",
+    "ws": "^8.18.1"
+  }
+}

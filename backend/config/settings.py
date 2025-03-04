@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'channels',  # For WebSocket support
     'drf_yasg',  # For API documentation
     'rest_framework',  # For Django REST framework
-    'rest_framework.authtoken',  # For token-based authentication
+#    'rest_framework.authtoken',   For token-based authentication
     'corsheaders',  # Fixed typo here
     # Custom apps
     'user',
@@ -48,6 +48,8 @@ INSTALLED_APPS = [
     'terminal',
     'chatbot',
 ]
+
+DATABASES = {}
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -97,9 +99,20 @@ MONGODB_URI = config('MONGODB_URI')
 mongo_client = MongoClient(MONGODB_URI)
 mongo_db = mongo_client['tech_learn']  # Your MongoDB database name
 
+# config/settings.py
+from pymongo import MongoClient
+MONGODB_URI = config('MONGODB_URI')
+mongo_client = MongoClient(
+    MONGODB_URI,
+    serverSelectionTimeoutMS=30000,  # 30s timeout
+    connectTimeoutMS=30000,
+    retryWrites=True,
+    retryReads=True
+)
+mongo_db = mongo_client['tech_learn']
+
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -160,7 +173,7 @@ CORS_ALLOW_HEADERS = ['Authorization', 'Content-Type']
 # Django REST Framework settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',  # Token-based authentication
+#        'rest_framework.authentication.TokenAuthentication',  # Token-based authentication
         'rest_framework.authentication.SessionAuthentication',  # Session-based authentication
     ],
     'DEFAULT_PERMISSION_CLASSES': [
