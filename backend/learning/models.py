@@ -1,3 +1,4 @@
+# backend/learning/models.py
 from pymongo import MongoClient
 from django.conf import settings
 
@@ -61,3 +62,25 @@ class UserProgress:
     @staticmethod
     def get_user_progress(user_id):
         return [UserProgress(p['user_id'], p['lesson_id'], p['completed'], p.get('submitted_files'), p.get('output'), p['_id']) for p in UserProgress.collection.find({'user_id': user_id})]
+
+class Exercise:
+    collection = db['exercises']
+
+    def __init__(self, lesson_id, text, options, correct, _id=None):
+        self.lesson_id = lesson_id
+        self.text = text
+        self.options = options
+        self.correct = correct
+        self._id = _id
+
+    def save(self):
+        data = {'lesson_id': self.lesson_id, 'text': self.text, 'options': self.options, 'correct': self.correct}
+        if self._id:
+            self.collection.update_one({'_id': self._id}, {'$set': data})
+        else:
+            result = self.collection.insert_one(data)
+            self._id = result.inserted_id
+
+    @staticmethod
+    def get_by_lesson(lesson_id):
+        return [Exercise(e['lesson_id'], e['text'], e['options'], e['correct'], e['_id']) for e in Exercise.collection.find({'lesson_id': lesson_id})]

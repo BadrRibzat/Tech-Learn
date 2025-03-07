@@ -1,13 +1,23 @@
 from django.core.management.base import BaseCommand
-from learning.models import Lesson
+from learning.models import Lesson, Exercise
 import google.generativeai as genai
+from django.conf import settings
+from pymongo import MongoClient
 
 class Command(BaseCommand):
-    help = 'Seed basic lessons using Gemini API for frontend, backend, API, and Docker'
+    help = 'Seed basic lessons and exercises using Gemini API for frontend, backend, API, and Docker'
 
     def handle(self, *args, **options):
-        genai.configure(api_key="AIzaSyCBOOI5YusSiv-bEURr4XeuOfZpYl9MEo4")
-        model = genai.GenerativeModel('gemini-1.5-flash')  # Updated model
+        # Configure Gemini with API key from .env
+        genai.configure(api_key=settings.GEMINI_API_KEY)
+        model = genai.GenerativeModel('gemini-1.5-flash')
+
+        # Clear existing data
+        client = MongoClient(settings.MONGODB_URI)
+        db = client['tech_learn']
+        db.lessons.drop()
+        db.exercises.drop()
+        self.stdout.write(self.style.SUCCESS("Cleared existing lessons and exercises"))
 
         lessons = [
             # Frontend Basics
@@ -17,6 +27,27 @@ class Command(BaseCommand):
                 'order': 1,
                 'section': 'frontend',
                 'tier': 'basic',
+                'exercises': [
+                    {
+                        'text': 'What does HTML stand for?',
+                        'options': [
+                            'Hot Typing Markup Language',
+                            'Home Typing Modern Language',
+                            'Hyper Text Markup Language',
+                            'Home Testing Mixed Language'
+                        ],
+                        'correct': 'Hyper Text Markup Language'
+                    },
+                    {
+                        'text': 'Which one of the following headers has the correct HTML syntax?',
+                        'options': [
+                            '<h1>Welcome</h1>',
+                            '{{h1}}Welcome{{:h1}}',
+                            '{h1:Welcome}'
+                        ],
+                        'correct': '<h1>Welcome</h1>'
+                    }
+                ]
             },
             {
                 'title': 'CSS: Styling Basics',
@@ -24,6 +55,7 @@ class Command(BaseCommand):
                 'order': 2,
                 'section': 'frontend',
                 'tier': 'basic',
+                'exercises': []  # Add exercises later if needed
             },
             {
                 'title': 'JavaScript: Interactivity',
@@ -31,6 +63,7 @@ class Command(BaseCommand):
                 'order': 3,
                 'section': 'frontend',
                 'tier': 'basic',
+                'exercises': []
             },
             # Backend Basics
             {
@@ -39,6 +72,7 @@ class Command(BaseCommand):
                 'order': 1,
                 'section': 'backend',
                 'tier': 'basic',
+                'exercises': []
             },
             {
                 'title': 'Flask: Web Framework',
@@ -46,6 +80,7 @@ class Command(BaseCommand):
                 'order': 2,
                 'section': 'backend',
                 'tier': 'basic',
+                'exercises': []
             },
             {
                 'title': 'SQL: Database Basics',
@@ -53,6 +88,7 @@ class Command(BaseCommand):
                 'order': 3,
                 'section': 'backend',
                 'tier': 'basic',
+                'exercises': []
             },
             {
                 'title': 'NoSQL: MongoDB Intro',
@@ -60,6 +96,7 @@ class Command(BaseCommand):
                 'order': 4,
                 'section': 'backend',
                 'tier': 'basic',
+                'exercises': []
             },
             # API Basics
             {
@@ -68,6 +105,7 @@ class Command(BaseCommand):
                 'order': 1,
                 'section': 'api',
                 'tier': 'basic',
+                'exercises': []
             },
             # Docker Basics
             {
@@ -76,6 +114,7 @@ class Command(BaseCommand):
                 'order': 1,
                 'section': 'docker',
                 'tier': 'basic',
+                'exercises': []
             },
         ]
 
@@ -83,18 +122,28 @@ class Command(BaseCommand):
             try:
                 response = model.generate_content(lesson['prompt'])
                 full_content = response.text.strip()
-                # Split into content, example, task, output (assuming Gemini structures it)
-                parts = full_content.split('\n\n')  # Adjust based on Gemini output
+                parts = full_content.split('\n\n')
                 content = '\n\n'.join(parts[:-3]) if len(parts) > 3 else full_content
                 example_file = parts[-3] if len(parts) > 2 else ""
                 task_desc = parts[-2] if len(parts) > 1 else ""
                 expected_output = parts[-1] if parts else ""
-                
+
                 l = Lesson(
                     lesson['title'], content, lesson['order'], lesson['section'], lesson['tier'],
                     example_file, task_desc, expected_output
                 )
                 l.save()
-                self.stdout.write(self.style.SUCCESS(f"Seeded: {lesson['title']}"))
+                self.stdout.write(self.style.SUCCESS(f"Seeded lesson: {lesson['title']}"))
+
+                # Seed exercises for this lesson
+                for ex in lesson.get('exercises', []):
+                    exercise = Exercise(
+                        lesson_id=str(l._id),
+                        text=ex['text'],
+                        options=ex['options'],
+                        correct=ex['correct']
+                    )
+                    exercise.save()
+                    self.stdout.write(self.style.SUCCESS(f"Seeded exercise: {ex['text']} for {lesson['title']}"))
             except Exception as e:
                 self.stdout.write(self.style.ERROR(f"Failed to seed {lesson['title']}: {str(e)}"))

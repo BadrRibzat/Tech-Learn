@@ -1,8 +1,11 @@
+// frontend/src/app/dashboard/page.tsx
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Header from "../components/Header";
 import Terminal from "../components/Terminal";
+import HtmlEditor from "../components/HtmlEditor";
+import Exercises from "../components/Exercises";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/solid";
 
 export default function Dashboard() {
@@ -58,6 +61,12 @@ export default function Dashboard() {
     }
   };
 
+  const handleTaskSubmit = (code: string) => {
+    console.log("Submitted HTML:", code);
+    alert("Task submitted! Save this in /frontend/html_task.html in the terminal.");
+    // Later: Send to backend for file saving when per-user terminals are ready
+  };
+
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
 
   const renderContent = () => {
@@ -83,9 +92,15 @@ export default function Dashboard() {
                 <pre className="bg-dracula-bg p-2 rounded mb-4 text-dracula-fg">{selectedLesson.example_file}</pre>
                 <h4 className="text-xl font-semibold mb-2 text-dracula-fg">Task:</h4>
                 <p className="mb-4 text-dracula-fg">{selectedLesson.task_description}</p>
+                {selectedLesson.title === "HTML: Tags and Structure" && (
+                  <div className="flex gap-4">
+                    <HtmlEditor onSubmit={handleTaskSubmit} />
+                    <Exercises lessonId={selectedLesson.id} />
+                  </div>
+                )}
                 <button
                   onClick={() => checkTask(selectedLesson.id)}
-                  className="bg-dracula-purple text-dracula-bg px-4 py-2 rounded hover:bg-dracula-comment"
+                  className="bg-dracula-purple text-dracula-bg px-4 py-2 rounded hover:bg-dracula-comment mt-4"
                 >
                   Check Task
                 </button>
@@ -125,7 +140,6 @@ export default function Dashboard() {
     <>
       <Header />
       <div className="flex min-h-screen bg-dracula-bg">
-        {/* Sidebar */}
         <aside
           className={`fixed inset-y-0 left-0 w-64 bg-dracula-comment transform ${
             isSidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -169,8 +183,6 @@ export default function Dashboard() {
             </ul>
           </nav>
         </aside>
-
-        {/* Main Content */}
         <main className="flex-grow p-4 bg-dracula-bg relative">
           <button
             onClick={toggleSidebar}
@@ -182,7 +194,6 @@ export default function Dashboard() {
           </button>
           <div className="mt-12 md:mt-0">{renderContent()}</div>
         </main>
-
         {isSidebarOpen && (
           <div
             className="fixed inset-0 bg-black opacity-50 md:hidden z-40"
