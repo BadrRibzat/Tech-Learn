@@ -1,4 +1,3 @@
-// frontend/src/app/components/Exercises.tsx
 "use client";
 import { useState, useEffect } from "react";
 
@@ -38,13 +37,13 @@ export default function Exercises({ lessonId }: { lessonId: string }) {
     }
   };
 
-  if (!questions.length) return <div>Loading exercises...</div>;
+  if (!questions.length) return <div className="text-tech-fg">Loading exercises...</div>;
 
   const question = questions[currentQuestion];
   return (
-    <div className="w-96 border rounded p-2">
+    <div className="w-96 border border-tech-muted rounded p-2 bg-tech-bg text-tech-fg">
       <h2 className="text-lg font-bold">HTML Exercises</h2>
-      <p className="text-sm">{question.text}</p>
+      <p className="text-sm text-tech-muted">{question.text}</p>
       {question.options.map((opt, i) => (
         <div key={i} className="my-1">
           <input
@@ -54,17 +53,18 @@ export default function Exercises({ lessonId }: { lessonId: string }) {
             value={opt}
             checked={answer === opt}
             onChange={(e) => setAnswer(e.target.value)}
+            className="mr-2"
           />
-          <label htmlFor={`opt${i}`} className="ml-2">{opt}</label>
+          <label htmlFor={`opt${i}`} className="text-sm">{opt}</label>
         </div>
       ))}
       <button
         onClick={handleSubmit}
-        className="bg-green-500 text-white p-2 rounded hover:bg-green-600 mt-2"
+        className="bg-tech-primary text-tech-fg p-2 rounded hover:bg-tech-secondary mt-2 transition-colors"
       >
         Submit Answer
       </button>
-      {feedback && <p className="mt-2 text-sm">{feedback}</p>}
+      {feedback && <p className="mt-2 text-sm text-tech-secondary">{feedback}</p>}
     </div>
   );
 }

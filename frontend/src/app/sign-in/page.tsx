@@ -30,33 +30,33 @@ export default function SignIn() {
   return (
     <>
       <Header />
-      <div className="max-w-md mx-auto p-6 bg-dracula-comment rounded-lg shadow-lg mt-8">
-        <h2 className="text-3xl font-bold mb-6 text-dracula-fg text-center">Sign In</h2>
+      <div className="max-w-md mx-auto p-6 bg-tech-primary rounded-lg shadow-lg mt-8 text-tech-fg">
+        <h2 className="text-3xl font-bold mb-6 text-center">Sign In</h2>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-dracula-fg mb-1">Email</label>
+            <label className="block text-sm font-medium mb-1">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-3 bg-dracula-bg text-dracula-fg rounded-md border border-dracula-purple focus:outline-none focus:ring-2 focus:ring-dracula-purple"
+              className="w-full p-3 bg-tech-bg text-tech-fg rounded-md border border-tech-muted focus:outline-none focus:ring-2 focus:ring-tech-secondary"
               placeholder="Enter your email"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-dracula-fg mb-1">Password</label>
+            <label className="block text-sm font-medium mb-1">Password</label>
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-3 bg-dracula-bg text-dracula-fg rounded-md border border-dracula-purple focus:outline-none focus:ring-2 focus:ring-dracula-purple"
+                className="w-full p-3 bg-tech-bg text-tech-fg rounded-md border border-tech-muted focus:outline-none focus:ring-2 focus:ring-tech-secondary"
                 placeholder="Enter your password"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 flex items-center pr-3 text-dracula-fg hover:text-dracula-purple"
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-tech-fg hover:text-tech-secondary"
               >
                 {showPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
               </button>
@@ -65,7 +65,7 @@ export default function SignIn() {
           {error && <p className="text-red-500 text-sm">{error}</p>}
           <button
             type="submit"
-            className="w-full bg-dracula-purple text-dracula-bg px-4 py-3 rounded-md hover:bg-dracula-comment transition-colors duration-200"
+            className="w-full bg-tech-primary text-tech-fg px-4 py-3 rounded hover:bg-tech-secondary transition-colors"
           >
             Sign In
           </button>

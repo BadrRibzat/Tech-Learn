@@ -1,4 +1,3 @@
-// frontend/src/app/components/HtmlEditor.tsx
 "use client";
 import { useState, useEffect } from "react";
 import CodeMirror from "@uiw/react-codemirror";
@@ -21,11 +20,11 @@ export default function HtmlEditor({ onSubmit }: { onSubmit: (code: string) => v
   const [preview, setPreview] = useState("");
 
   useEffect(() => {
-    setPreview(code); // Simple preview—real apps might use iframe
+    setPreview(code);
   }, [code]);
 
   return (
-    <div className="flex flex-col gap-4 w-96 h-96 border rounded p-2">
+    <div className="flex flex-col gap-4 w-96 h-96 border border-tech-muted rounded p-2 bg-tech-bg text-tech-fg">
       <h2 className="text-lg font-bold">HTML Editor</h2>
       <CodeMirror
         value={code}
@@ -33,14 +32,15 @@ export default function HtmlEditor({ onSubmit }: { onSubmit: (code: string) => v
         extensions={[html()]}
         onChange={(value) => setCode(value)}
         theme="dark"
+        className="border border-tech-muted rounded"
       />
-      <div className="border-t pt-2">
-        <h3 className="text-sm font-semibold">Preview</h3>
+      <div className="border-t border-tech-muted pt-2">
+        <h3 className="text-sm font-semibold text-tech-muted">Preview</h3>
         <div dangerouslySetInnerHTML={{ __html: preview }} className="text-sm" />
       </div>
       <button
         onClick={() => onSubmit(code)}
-        className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+        className="bg-tech-primary text-tech-fg p-2 rounded hover:bg-tech-secondary transition-colors"
       >
         Submit Task
       </button>

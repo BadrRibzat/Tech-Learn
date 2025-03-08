@@ -4,10 +4,11 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        "dracula-bg": "#282A36",
-        "dracula-fg": "#F8F8F2",
-        "dracula-comment": "#6272A4",
-        "dracula-purple": "#BD93F9",
+        "tech-bg": "#0C1521",      // Dark background (deep navy)
+        "tech-fg": "#AFC0CE",      // Light text (soft blue-gray)
+        "tech-primary": "#072440", // Primary buttons, accents (dark blue)
+        "tech-secondary": "#0B4470", // Hover states, secondary elements (mid blue)
+        "tech-muted": "#576778",   // Subtle text, borders (muted gray-blue)
       },
     },
   },
