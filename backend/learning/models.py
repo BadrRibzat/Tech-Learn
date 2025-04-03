@@ -8,7 +8,8 @@ db = client['tech_learn']
 class Lesson:
     collection = db['lessons']
 
-    def __init__(self, title, content, order, section, tier="basic", example_file=None, task_description=None, expected_output=None, _id=None):
+    def __init__(self, title, content, order, section, tier="basic", example_file=None, task_description=None, expected_output=None, lab_instructions=None, required_files=None, 
+                 expected_commands=None, validation_script=None, _id=None):
         self.title = title
         self.content = content
         self.order = order
@@ -18,12 +19,20 @@ class Lesson:
         self.task_description = task_description
         self.expected_output = expected_output
         self._id = _id
+        self.lab_instructions = lab_instructions
+        self.required_files = required_files or []
+        self.expected_commands = expected_commands or []
+        self.validation_script = validation_script
 
     def save(self):
         data = {
             'title': self.title, 'content': self.content, 'order': self.order,
             'section': self.section, 'tier': self.tier, 'example_file': self.example_file,
-            'task_description': self.task_description, 'expected_output': self.expected_output
+            'task_description': self.task_description, 'expected_output': self.expected_output,
+            'lab_instructions': self.lab_instructions,
+            'required_files': self.required_files,
+            'expected_commands': self.expected_commands,
+            'validation_script': self.validation_script
         }
         if self._id:
             self.collection.update_one({'_id': self._id}, {'$set': data})

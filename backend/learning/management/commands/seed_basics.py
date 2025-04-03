@@ -3,9 +3,53 @@ from learning.models import Lesson, Exercise
 import google.generativeai as genai
 from django.conf import settings
 from pymongo import MongoClient
+import random
+import time
+import traceback
 
 class Command(BaseCommand):
-    help = 'Seed basic lessons and exercises using Gemini API for frontend, backend, API, and Docker'
+    help = 'Seed basic lessons and exercises using Gemini API for frontend, backend, API, and Docker with 10 labs'
+
+    def generate_lab_prompt(self, category, lab_number):
+        categories = {
+            'frontend': {
+                'topics': ['HTML', 'CSS', 'JavaScript'],
+                'tasks': ['Create component', 'Implement validation', 'Style layout']
+            },
+            'backend': {
+                'topics': ['Node.js', 'Python', 'Database'],
+                'tasks': ['Create API endpoint', 'Implement middleware', 'Optimize query']
+            },
+            'devops': {
+                'topics': ['Docker', 'CI/CD', 'Infrastructure'],
+                'tasks': ['Create Dockerfile', 'Implement pipeline', 'Configure monitoring']
+            }
+        }
+
+        cat = category.lower()
+        topic = random.choice(categories[cat]['topics'])
+        task = random.choice(categories[cat]['tasks'])
+
+        return f"""
+        Generate a lab exercise for {topic} focusing on {task}. You must strictly follow this format and include all sections:
+        
+        INSTRUCTIONS:
+        [Provide detailed step-by-step instructions for terminal operations to complete the task.]
+
+        FILES:
+        [List exactly 3 files to create, separated by commas, e.g., file1.js, file2.css, file3.html]
+
+        COMMANDS:
+        [List exactly 2 terminal commands to execute, separated by commas, e.g., npm install, node server.js]
+
+        VALIDATION:
+        [Provide a script or steps to verify the task completion, e.g., a bash script or manual check.]
+
+        EXAMPLE:
+        [Provide a complete example solution, e.g., code snippets for all files.]
+
+        Ensure each section starts with its exact label (e.g., "INSTRUCTIONS:") followed by content. Do not deviate from this structure or omit any section.
+        """
 
     def handle(self, *args, **options):
         # Configure Gemini with API key from .env
@@ -55,7 +99,7 @@ class Command(BaseCommand):
                 'order': 2,
                 'section': 'frontend',
                 'tier': 'basic',
-                'exercises': []  # Add exercises later if needed
+                'exercises': []
             },
             {
                 'title': 'JavaScript: Interactivity',
@@ -147,3 +191,72 @@ class Command(BaseCommand):
                     self.stdout.write(self.style.SUCCESS(f"Seeded exercise: {ex['text']} for {lesson['title']}"))
             except Exception as e:
                 self.stdout.write(self.style.ERROR(f"Failed to seed {lesson['title']}: {str(e)}"))
+
+        # Generate 10 labs
+        lab_categories = ['frontend', 'backend', 'devops']
+        for i in range(1, 11):
+            category = lab_categories[i % 3]
+            lab_prompt = self.generate_lab_prompt(category, i)
+
+            try:
+                time.sleep(1)  # Rate limit protection
+                response = model.generate_content(lab_prompt)
+                if not response or not hasattr(response, 'text'):
+                    self.stdout.write(self.style.WARNING(f"Skipping lab {i}: Invalid response from Gemini API"))
+                    continue
+                content = response.text.strip()
+
+                # Validate response
+                required_sections = ['INSTRUCTIONS:', 'FILES:', 'COMMANDS:', 'VALIDATION:', 'EXAMPLE:']
+                if not all(section in content for section in required_sections):
+                    self.stdout.write(self.style.WARNING(f"Skipping lab {i}: Response missing sections - {content[:100]}..."))
+                    continue
+
+                # Parse response
+                sections = {key: '' for key in ['INSTRUCTIONS', 'FILES', 'COMMANDS', 'VALIDATION', 'EXAMPLE']}
+                current_section = None
+                for line in content.split('\n'):
+                    line = line.strip()
+                    if not line:
+                        continue
+                    if line.startswith('INSTRUCTIONS:'):
+                        current_section = 'INSTRUCTIONS'
+                    elif line.startswith('FILES:'):
+                        current_section = 'FILES'
+                    elif line.startswith('COMMANDS:'):
+                        current_section = 'COMMANDS'
+                    elif line.startswith('VALIDATION:'):
+                        current_section = 'VALIDATION'
+                    elif line.startswith('EXAMPLE:'):
+                        current_section = 'EXAMPLE'
+                    elif current_section:
+                        if current_section == 'FILES':
+                            sections['FILES'] = [f.strip() for f in line.split(',') if f.strip()]
+                        elif current_section == 'COMMANDS':
+                            sections['COMMANDS'] = [c.strip() for c in line.split(',') if c.strip()]
+                        else:
+                            sections[current_section] += line + '\n'
+
+                # Ensure all sections have content
+                if not all(sections.values()):
+                    self.stdout.write(self.style.WARNING(f"Skipping lab {i}: Incomplete sections"))
+                    continue
+
+                lab = Lesson(
+                    title=f"Lab {i}: {category.capitalize()} Practice",
+                    content=sections['INSTRUCTIONS'].strip(),
+                    order=i + 100,
+                    section=category,
+                    tier='basic',
+                    lab_instructions=sections['INSTRUCTIONS'].strip(),
+                    required_files=sections['FILES'],
+                    expected_commands=sections['COMMANDS'],
+                    validation_script=sections['VALIDATION'].strip(),
+                    example_file=sections['EXAMPLE'].strip()
+                )
+                lab.save()
+                self.stdout.write(self.style.SUCCESS(f"Created lab {i} in {category}"))
+
+            except Exception as e:
+                self.stdout.write(self.style.ERROR(f"Failed lab {i}: {str(e)}\n{traceback.format_exc()}"))
+

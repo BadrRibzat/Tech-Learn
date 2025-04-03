@@ -8,6 +8,11 @@ RUN apt-get update && apt-get install -y \
     sudo \
     python3 \
     python3-pip \
+    docker.io \
+    openssh-client \
+    inotify-tools \
+    tree \
+    jq \
     nano \
     vim \
     git \
@@ -22,6 +27,8 @@ RUN mkdir -p /var/run/sshd && \
     echo "root:rootpass" | chpasswd && \
     sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
     sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
+
+RUN pip3 install watchdog python-dotenv
 
 EXPOSE 22
 CMD ["/usr/sbin/sshd", "-D"]

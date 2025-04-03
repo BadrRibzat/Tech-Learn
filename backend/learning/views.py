@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Lesson, UserProgress, Exercise
+from .lab_verifier import LabVerifier
 from user.models import User
 import subprocess
 
@@ -61,6 +62,27 @@ class ExerciseListView(APIView):
         return Response([{
             'id': str(e._id), 'text': e.text, 'options': e.options
         } for e in exercises])
+
+class LabVerificationView(APIView):
+    def post(self, request, lesson_id):
+        token = request.headers.get('Authorization', '').replace('Token ', '')
+        user = User.find_by_token(token)
+        if not user:
+            return Response({'error': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        verifier = LabVerifier()
+        result = verifier.verify_lab(str(user.token), lesson_id)
+        
+        # Save progress
+        progress = UserProgress(
+            user_id=str(user.token),
+            lesson_id=lesson_id,
+            completed=result['completed'],
+            output=result['output']
+        )
+        progress.save()
+
+        return Response(result)
 
 class CheckAnswerView(APIView):
     def post(self, request):

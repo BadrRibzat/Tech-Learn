@@ -1,9 +1,9 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, forwardRef, ForwardedRef } from "react";
 import { Terminal as XTerm } from "@xterm/xterm";
 import "@xterm/xterm/css/xterm.css";
 
-export default function Terminal() {
+const Terminal = forwardRef((props, ref: ForwardedRef<XTerm>) => {
   const terminalRef = useRef<HTMLDivElement>(null);
   const termRef = useRef<XTerm | null>(null);
 
@@ -39,10 +39,21 @@ export default function Terminal() {
       });
     }
 
+    if (ref) {
+      if (typeof ref === "function") {
+        ref(termRef.current);
+      } else {
+        ref.current = termRef.current;
+      }
+    }
+
     return () => {
       if (termRef.current) termRef.current.dispose();
     };
-  }, []);
+  }, [ref]);
 
   return <div ref={terminalRef} className="w-full h-96" />;
-}
+});
+
+Terminal.displayName = "Terminal";
+export default Terminal;
