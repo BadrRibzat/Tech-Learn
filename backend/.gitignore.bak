@@ -1,0 +1,1 @@
+env/ **pycache**/ \*.pyc \*.pyo \*.pyd .Python \*.log \*.pid \*.sqlite3 .env migrations/ \*.egg-info/ dist/ build/ \*.egg \*.eggs/ \*.egg-info/

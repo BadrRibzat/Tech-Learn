@@ -5,7 +5,7 @@ from chatbot.utils import get_response
 class ChatbotConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         await self.accept()
-        await self.send(text_data=json.dumps({"message": "Connected to chatbot"}))
+        await self.send(text_data=json.dumps({"message": "Chatbot connected"}))
 
     async def disconnect(self, close_code):
         pass
@@ -14,7 +14,8 @@ class ChatbotConsumer(AsyncWebsocketConsumer):
         try:
             text_data_json = json.loads(text_data)
             message = text_data_json.get("message", "")
-            response = get_response(message)
-            await self.send(text_data=json.dumps({"message": response}))
+            if message:
+                response = get_response(message)
+                await self.send(text_data=json.dumps({"message": response}))
         except Exception as e:
             await self.send(text_data=json.dumps({"error": str(e)}))

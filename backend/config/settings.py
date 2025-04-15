@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 from decouple import config
+from urllib.parse import urlparse
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -42,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'channels',  # For WebSocket support
+    'daphne',
     'drf_yasg',  # For API documentation
     'rest_framework',  # For Django REST framework
 #    'rest_framework.authtoken',   For token-based authentication

@@ -5,15 +5,15 @@ const wss = new WebSocket.Server({ port: 3001 });
 console.log('WebSocket server running on ws://0.0.0.0:3001');
 
 wss.on('connection', (ws) => {
-  console.log('New WebSocket connection established');
+  console.log('New WebSocket connection');
   const ssh = new Client();
 
   ssh.on('ready', () => {
-    console.log('SSH connection ready');
-    ws.send('SSH connection established\r\n');
-    ssh.shell({ term: 'xterm' }, (err, stream) => {
+    console.log('SSH connected');
+    ws.send('Connected to terminal\r\n');
+    ssh.shell({ term: 'xterm', cols: 80, rows: 24 }, (err, stream) => {
       if (err) {
-        console.error('SSH shell error:', err);
+        console.error('SSH shell error:', err.message);
         ws.send(`Error: ${err.message}\r\n`);
         ws.close();
         return;
@@ -24,7 +24,7 @@ wss.on('connection', (ws) => {
       });
 
       stream.on('error', (err) => {
-        console.error('Stream error:', err);
+        console.error('Stream error:', err.message);
         ws.send(`Stream error: ${err.message}\r\n`);
       });
 
@@ -38,24 +38,24 @@ wss.on('connection', (ws) => {
         try {
           stream.write(data.toString());
         } catch (err) {
-          console.error('Error writing to stream:', err);
+          console.error('Stream write error:', err.message);
         }
       });
 
       ws.on('close', () => {
-        console.log('WebSocket closed by client');
+        console.log('WebSocket client closed');
         stream.end();
         ssh.end();
       });
 
       ws.on('error', (err) => {
-        console.error('WebSocket error:', err);
+        console.error('WebSocket error:', err.message);
       });
     });
   });
 
   ssh.on('error', (err) => {
-    console.error('SSH connection error:', err);
+    console.error('SSH error:', err.message);
     ws.send(`SSH Error: ${err.message}\r\n`);
     ws.close();
   });
@@ -72,15 +72,16 @@ wss.on('connection', (ws) => {
       username: 'root',
       password: 'root',
       keepaliveInterval: 10000,
-      keepaliveCountMax: 3
+      keepaliveCountMax: 3,
+      readyTimeout: 20000
     });
   } catch (err) {
-    console.error('SSH connect error:', err);
+    console.error('SSH connect error:', err.message);
     ws.send(`Connection failed: ${err.message}\r\n`);
     ws.close();
   }
 });
 
 wss.on('error', (err) => {
-  console.error('WebSocket server error:', err);
+  console.error('WebSocket server error:', err.message);
 });

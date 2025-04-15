@@ -6,8 +6,10 @@ import config.routing
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 
+django_asgi_app = get_asgi_application()
+
 application = ProtocolTypeRouter({
-    "http": get_asgi_application(),
+    "http": django_asgi_app,
     "websocket": AllowedHostsOriginValidator(
         URLRouter(config.routing.websocket_urlpatterns)
     ),
