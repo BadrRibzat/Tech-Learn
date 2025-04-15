@@ -3,6 +3,27 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import User
 from .serializers import UserSerializer
+from social_django.utils import psa
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+@psa('social:complete')
+def google_login(request, backend):
+    user = request.user
+    if user.is_authenticated:
+        social_user = user.social_auth.get(provider='google-oauth2')
+        existing_user = User.find_by_google_id(social_user.uid)
+        if not existing_user:
+            existing_user = User(
+                username=user.username or social_user.extra_data['email'].split('@')[0],
+                email=social_user.extra_data['email'],
+                google_id=social_user.uid
+            )
+            existing_user.save()
+        return Response({'token': existing_user.token}, status=status.HTTP_200_OK)
+    return Response({'error': 'Authentication failed'}, status=status.HTTP_400_BAD_REQUEST)
 
 class SignupView(APIView):
     def post(self, request):

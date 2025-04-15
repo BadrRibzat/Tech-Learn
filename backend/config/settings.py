@@ -47,11 +47,23 @@ INSTALLED_APPS = [
 #    'rest_framework.authtoken',   For token-based authentication
     'corsheaders',  # Fixed typo here
     # Custom apps
+    'social_django',
     'user',
     'learning',
     'terminal',
     'chatbot',
 ]
+
+AUTHENTICATION_BACKENDS = [
+    'social_core.backends.google.GoogleOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+# Social Auth Settings
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.getenv('GOOGLE_CLIENT_ID')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['email', 'profile']
+SOCIAL_AUTH_JSONFIELD_ENABLED = True  # For MongoDB JSON fields
 
 DATABASES = {}
 

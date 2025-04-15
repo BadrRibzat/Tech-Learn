@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Chatbot from "./components/Chatbot";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "Tech-Learn",
@@ -8,19 +9,22 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({
-  children,
+    children,
 }: Readonly<{
-  children: React.ReactNode;
+    children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <body className="bg-tech-bg text-tech-fg min-h-screen flex flex-col">
-        <main className="flex-grow">{children}</main>
-        <footer className="bg-tech-primary p-4 text-center relative text-tech-fg">
-          <p>© 2025 Tech-Learn by Badr Ribzat. All rights reserved.</p>
-          <Chatbot />
-        </footer>
-      </body>
-    </html>
-  );
+    return (
+        <html lang="en">
+            <head>
+                <Script src="https://apis.google.com/js/platform.js" strategy="beforeInteractive" />
+            </head>
+            <body className="bg-tech-bg text-tech-fg min-h-screen flex flex-col">
+                <main className="flex-grow">{children}</main>
+                <footer className="bg-tech-primary p-4 text-center relative text-tech-fg">
+                    <p>© 2025 Tech-Learn by Badr Ribzat. All rights reserved.</p>
+                    <Chatbot />
+                </footer>
+            </body>
+        </html>
+    );
 }

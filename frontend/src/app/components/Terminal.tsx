@@ -1,59 +1,68 @@
 "use client";
-import { useEffect, useRef, forwardRef, ForwardedRef } from "react";
-import { Terminal as XTerm } from "@xterm/xterm";
-import "@xterm/xterm/css/xterm.css";
+import { useEffect, useRef } from "react";
+import { Terminal } from "xterm";
+import "xterm/css/xterm.css";
 
-const Terminal = forwardRef((props, ref: ForwardedRef<XTerm>) => {
+export default function TerminalComponent() {
   const terminalRef = useRef<HTMLDivElement>(null);
-  const termRef = useRef<XTerm | null>(null);
+  const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    termRef.current = new XTerm({
+    const term = new Terminal({
       cursorBlink: true,
-      theme: { background: "#282a36" },
+      theme: {
+        background: "#1e1e1e",
+        foreground: "#ffffff",
+      },
     });
 
     if (terminalRef.current) {
-      termRef.current.open(terminalRef.current);
-      termRef.current.focus();
+      term.open(terminalRef.current);
+      term.write("Connecting to terminal...\r\n");
+    }
 
-      const ws = new WebSocket("ws://localhost:3001");
-      ws.onopen = () => {
+    const connectWebSocket = () => {
+      wsRef.current = new WebSocket("ws://localhost:3001");
+
+      wsRef.current.onopen = () => {
         console.log("WebSocket opened");
-        termRef.current.write("Connected to Ubuntu Terminal\r\n");
-      };
-      ws.onmessage = (event) => termRef.current.write(event.data);
-      ws.onclose = (event) => {
-        console.log("WebSocket closed:", event.code, event.reason);
-        termRef.current.write(`\r\nDisconnected (Code: ${event.code})\r\n`);
-      };
-      ws.onerror = (event) => {
-        console.error("WebSocket error:", event);
-        termRef.current.write("\r\nWebSocket error occurred\r\n");
+        term.clear();
+        term.write("Connected to terminal\r\n");
       };
 
-      termRef.current.onData((data) => {
-        if (ws.readyState === WebSocket.OPEN) {
-          ws.send(data);
+      wsRef.current.onmessage = (event) => {
+        term.write(event.data);
+      };
+
+      wsRef.current.onclose = (event) => {
+        console.log("WebSocket closed:", event.code);
+        term.write(`\r\nConnection closed. Reconnecting...\r\n`);
+        setTimeout(connectWebSocket, 3000);
+      };
+
+      wsRef.current.onerror = (error) => {
+        console.error("WebSocket error:", error);
+        term.write(`\r\nError: Connection failed\r\n`);
+      };
+
+      term.onData((data) => {
+        if (wsRef.current?.readyState === WebSocket.OPEN) {
+          wsRef.current.send(data);
+        } else {
+          term.write(`\r\nTerminal disconnected\r\n`);
         }
       });
-    }
+    };
 
-    if (ref) {
-      if (typeof ref === "function") {
-        ref(termRef.current);
-      } else {
-        ref.current = termRef.current;
-      }
-    }
+    connectWebSocket();
 
     return () => {
-      if (termRef.current) termRef.current.dispose();
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+      term.dispose();
     };
-  }, [ref]);
+  }, []);
 
-  return <div ref={terminalRef} className="w-full h-96" />;
-});
-
-Terminal.displayName = "Terminal";
-export default Terminal;
+  return <div ref={terminalRef} className="w-full h-[500px] p-4 bg-tech-bg" />;
+}
