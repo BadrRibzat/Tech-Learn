@@ -25,9 +25,9 @@ export default function TerminalComponent() {
       wsRef.current = new WebSocket("ws://localhost:3001");
 
       wsRef.current.onopen = () => {
-        console.log("WebSocket opened");
+        console.log("WebSocket connected");
         term.clear();
-        term.write("Connected to terminal\r\n");
+        term.write("Terminal ready\r\n");
       };
 
       wsRef.current.onmessage = (event) => {
@@ -35,21 +35,21 @@ export default function TerminalComponent() {
       };
 
       wsRef.current.onclose = (event) => {
-        console.log("WebSocket closed:", event.code);
-        term.write(`\r\nConnection closed. Reconnecting...\r\n`);
-        setTimeout(connectWebSocket, 3000);
+        console.log("WebSocket closed, code:", event.code);
+        term.write(`\r\nDisconnected. Reconnecting...\r\n`);
+        setTimeout(connectWebSocket, 5000);
       };
 
-      wsRef.current.onerror = (error) => {
-        console.error("WebSocket error:", error);
-        term.write(`\r\nError: Connection failed\r\n`);
+      wsRef.current.onerror = () => {
+        console.error("WebSocket error");
+        term.write(`\r\nConnection error\r\n`);
       };
 
       term.onData((data) => {
         if (wsRef.current?.readyState === WebSocket.OPEN) {
           wsRef.current.send(data);
         } else {
-          term.write(`\r\nTerminal disconnected\r\n`);
+          term.write(`\r\nTerminal offline\r\n`);
         }
       });
     };
