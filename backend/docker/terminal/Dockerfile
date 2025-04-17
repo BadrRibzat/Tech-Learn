@@ -1,17 +1,27 @@
 FROM ubuntu:20.04
 
-RUN apt-get update && apt-get install -y \
-openssh-server \
-python3 \
-python3-pip \
-nano \
-vim \
-&& rm -rf /var/lib/apt/lists/\*
+# Set a faster mirror for apt-get
+RUN sed -i 's|http://archive.ubuntu.com/ubuntu|http://us.archive.ubuntu.com/ubuntu|g' /etc/apt/sources.list
 
-RUN mkdir -p /var/run/sshd RUN echo 'root:root' | chpasswd RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config RUN ssh-keygen -A
+# Install dependencies in one layer to minimize image size
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    openssh-server \
+    python3 \
+    python3-pip \
+    nano \
+    vim \
+    && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
-RUN pip3 install watchdog python-dotenv
+# Configure SSH
+RUN mkdir -p /var/run/sshd && \
+    echo 'root:root' | chpasswd && \
+    sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
+    sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config && \
+    ssh-keygen -A
+
+# Install Python packages
+RUN pip3 install --no-cache-dir watchdog python-dotenv
 
 EXPOSE 22
 
-CMD \["/usr/sbin/sshd", "-D"\]
+CMD ["/usr/sbin/sshd", "-D"]
