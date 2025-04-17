@@ -5,11 +5,11 @@ const wss = new WebSocket.Server({ port: 3001 });
 console.log('WebSocket server running on ws://0.0.0.0:3001');
 
 wss.on('connection', (ws) => {
-  console.log('New WebSocket connection');
+  console.log('New WebSocket connection from', ws._socket.remoteAddress);
   const ssh = new Client();
 
   ssh.on('ready', () => {
-    console.log('SSH connected');
+    console.log('SSH connected to localhost:2222');
     ws.send('Connected to terminal\r\n');
     ssh.shell({ term: 'xterm', cols: 80, rows: 24 }, (err, stream) => {
       if (err) {
@@ -55,7 +55,7 @@ wss.on('connection', (ws) => {
   });
 
   ssh.on('error', (err) => {
-    console.error('SSH error:', err.message);
+    console.error('SSH error:', err.message, err.level);
     ws.send(`SSH Error: ${err.message}\r\n`);
     ws.close();
   });
@@ -73,7 +73,8 @@ wss.on('connection', (ws) => {
       password: 'root',
       keepaliveInterval: 10000,
       keepaliveCountMax: 3,
-      readyTimeout: 20000
+      readyTimeout: 20000,
+      debug: (msg) => console.log('SSH debug:', msg)
     });
   } catch (err) {
     console.error('SSH connect error:', err.message);
