@@ -1,19 +1,44 @@
-import Header from "./components/Header";
+'use client';
 
-export default function Home() {
+import { useEffect, useState } from 'react';
+import Header from './components/Header';
+
+interface Lab {
+  id: string;
+  title: string;
+  category: string | null;
+}
+
+export default function Dashboard() {
+  const [labs, setLabs] = useState<Lab[]>([]);
+
+  useEffect(() => {
+    async function fetchLabs() {
+      try {
+        const response = await fetch('http://localhost:8000/learning/lessons/');
+        const data = await response.json();
+        console.log('Fetched Labs:', data);
+        setLabs(data);
+      } catch (error) {
+        console.error('Error fetching labs:', error);
+      }
+    }
+    fetchLabs();
+  }, []);
+
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       <Header />
-      <div className="max-w-4xl mx-auto p-4 text-tech-fg">
-        <h2 className="text-3xl font-bold mb-4">Welcome to Tech-Learn</h2>
-        <p className="mb-4">
-          Tech-Learn is your platform to master programming and system administration through hands-on practice.
-          Sign in to access your personalized learning dashboard!
-        </p>
-        <a href="/sign-in" className="bg-tech-primary text-tech-fg px-4 py-2 rounded hover:bg-tech-secondary transition-colors">
-          Sign In
-        </a>
-      </div>
-    </>
+      <main className="flex-grow max-w-4xl mx-auto p-4">
+        <h1 className="text-2xl font-bold mb-4">Tech-Learn Dashboard</h1>
+        <ul className="space-y-2">
+          {labs.map((lab) => (
+            <li key={lab.id || lab.title} className="p-2 border rounded">
+              {lab.title} ({lab.category || 'Uncategorized'})
+            </li>
+          ))}
+        </ul>
+      </main>
+    </div>
   );
 }

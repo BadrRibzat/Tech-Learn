@@ -10,6 +10,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-pip \
     nano \
     vim \
+    git \
+    curl \
+    wget \
+    build-essential \
+    nodejs \
+    npm \
+    postgresql-client \
     && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
 # Configure SSH
@@ -21,6 +28,10 @@ RUN mkdir -p /var/run/sshd && \
 
 # Install Python packages
 RUN pip3 install --no-cache-dir watchdog python-dotenv
+
+# Set up working directory for projects
+RUN mkdir -p /home/student && chown root:root /home/student
+WORKDIR /home/student
 
 EXPOSE 22
 
