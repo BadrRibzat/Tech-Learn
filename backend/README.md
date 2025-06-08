@@ -71,3 +71,5 @@ The server runs on http://127.0.0.1:8000 with WebSocket
 
 **Contributing**:
 Fork the repo, make changes, and submit a pull request to https://github.com/BadrRibzat/Tech-Learn.
+
+will continue developing the project soone
